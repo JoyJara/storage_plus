@@ -1,0 +1,42 @@
+:root {
+  --verde-principal: #28a745;
+}
+
+/* color pal nav bar */
+.custom-green {
+  background-color: var(--verde-principal) !important;
+}
+
+/* botón custom */
+.custom-green-btn {
+  background-color: var(--verde-principal);
+  border-color: var(--verde-principal);
+  color: #fff;
+}
+
+/* esto es pa cuando pasas el ratón en cima del botón*/
+.custom-green-btn:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+  color: #fff;
+}
+
+.logout-dropdown {
+  background-color: var(--verde-principal);
+  color: #fff !important;
+  margin-top: 0.5rem;
+  --bs-dropdown-link-hover-bg: #ffffff00; /* color de fondo al hacer hover */
+}
+
+.logout-dropdown .dropdown-item {
+  color: #fff !important;
+}
+
+/* fuente principal */
+body {
+  font-family: Arial, sans-serif;
+}
+
+footer {
+  margin-bottom: 0 !important;
+}
