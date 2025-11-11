@@ -1,0 +1,346 @@
+openapi: 3.0.3
+info:
+  title: Storage Plus API
+  version: 1.0.0
+  description: |
+    📦 API REST del sistema **Storage Plus**  
+    Permite administrar inventario, empleados, punto de venta, historial y envío de correos.
+servers:
+  - url: http://localhost:3000
+    description: Servidor local
+  - url: http://66.179.92.207:3000
+    description: Servidor VPS (producción)
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    AuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        user:
+          type: object
+          properties:
+            id:
+              type: integer
+            username:
+              type: string
+            role:
+              type: string
+        token:
+          type: string
+
+tags:
+  - name: Autenticación
+  - name: Inventario
+  - name: Empleados
+  - name: Punto de Venta
+  - name: Historial
+  - name: Correo
+
+paths:
+  /api/auth/login:
+    post:
+      tags: [Autenticación]
+      summary: Iniciar sesión y obtener token JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: admin
+                password:
+                  type: string
+                  example: 1234
+      responses:
+        '200':
+          description: Inicio de sesión exitoso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Credenciales incorrectas
+
+  /api/auth/logout:
+    post:
+      tags: [Autenticación]
+      summary: Cerrar sesión del usuario
+      responses:
+        '200':
+          description: Sesión cerrada correctamente
+
+  /api/inventory:
+    get:
+      tags: [Inventario]
+      summary: Obtener todos los productos del inventario
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200':
+          description: Lista de productos obtenida
+    post:
+      tags: [Inventario]
+      summary: Agregar un nuevo producto al inventario
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Producto:
+                  type: string
+                  example: Refresco 600ml
+                CodigoBarras:
+                  type: string
+                  example: 7501055300010
+                Categoria:
+                  type: integer
+                  example: 1
+                Descripcion:
+                  type: string
+                  example: Refresco sabor cola 600ml
+                Stock:
+                  type: number
+                  example: 50
+                Precio:
+                  type: number
+                  example: 16.00
+      responses:
+        '200':
+          description: Producto agregado correctamente
+
+  /api/inventory/{id}:
+    put:
+      tags: [Inventario]
+      summary: Editar un producto existente
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 5
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Producto:
+                  type: string
+                Categoria:
+                  type: integer
+                Precio:
+                  type: number
+                Stock:
+                  type: number
+      responses:
+        '200':
+          description: Producto actualizado correctamente
+    delete:
+      tags: [Inventario]
+      summary: Eliminar un producto
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Producto eliminado correctamente
+
+  /api/inventory/categories:
+    get:
+      tags: [Inventario]
+      summary: Obtener las categorías de productos
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200':
+          description: Categorías obtenidas correctamente
+
+  /api/employees:
+    get:
+      tags: [Empleados]
+      summary: Obtener todos los empleados registrados
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200':
+          description: Lista de empleados
+    post:
+      tags: [Empleados]
+      summary: Agregar un nuevo empleado
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Juan Pérez
+                phone:
+                  type: string
+                  example: "555-1234567"
+                role:
+                  type: integer
+                  example: 2
+                hiringDate:
+                  type: string
+                  format: date
+                  example: "2025-11-11"
+                username:
+                  type: string
+                  example: juan.perez
+                password:
+                  type: string
+                  example: MiContraseñaSegura123
+                status:
+                  type: integer
+                  example: 1
+      responses:
+        '200':
+          description: Empleado agregado correctamente
+
+  /api/employees/{id}:
+    put:
+      tags: [Empleados]
+      summary: Editar información de un empleado
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 3
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                phone:
+                  type: string
+                role:
+                  type: integer
+                hiringDate:
+                  type: string
+                username:
+                  type: string
+                status:
+                  type: integer
+      responses:
+        '200':
+          description: Empleado actualizado correctamente
+    delete:
+      tags: [Empleados]
+      summary: Eliminar un empleado del sistema
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Empleado eliminado correctamente
+
+  /api/pos:
+    get:
+      tags: [Punto de Venta]
+      summary: Obtener productos disponibles en el POS
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200':
+          description: Productos obtenidos correctamente
+
+  /api/pos/sale:
+    post:
+      tags: [Punto de Venta]
+      summary: Registrar una venta en el POS
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                employeeID:
+                  type: integer
+                  example: 1
+                date:
+                  type: string
+                  example: "2025-11-11T10:30:00Z"
+                products:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      productID:
+                        type: integer
+                        example: 8
+                      quantity:
+                        type: number
+                        example: 2
+      responses:
+        '200':
+          description: Venta registrada correctamente
+
+  /api/history:
+    get:
+      tags: [Historial]
+      summary: Obtener historial completo del sistema
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200':
+          description: Historial obtenido correctamente
+
+  /api/email:
+    post:
+      tags: [Correo]
+      summary: Enviar un mensaje de contacto al soporte
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nombre:
+                  type: string
+                  example: Joel Morales
+                correo:
+                  type: string
+                  example: joel@example.com
+                asunto:
+                  type: string
+                  example: "Consulta sobre facturación"
+                mensaje:
+                  type: string
+                  example: "Hola, tengo una duda sobre el módulo de inventario."
+      responses:
+        '200':
+          description: Correo enviado correctamente
