@@ -11,48 +11,34 @@ const LoginScreen: React.FC = () => {
 
   const handleLogin = async () => {
     try {
-      // 1. Iniciar sesión
       const res = await fetch(`${SERVER_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // importante para mantener la cookie de sesión
         body: JSON.stringify({ username, password }),
       });
 
       const data = await res.json();
 
-      if (res.ok) {
-        // 2. Obtener los datos de sesión
-        const sessionRes = await fetch(`${SERVER_URL}/api/auth/check-session`, {
-          method: "GET",
-          credentials: "include", // necesario para acceder a la cookie de sesión
-        });
+      if (res.ok && data.success) {
+        const user = data.user;
+        console.log("Rol del usuario:", user.role);
 
-        const sessionData = await sessionRes.json();
+        // Guarda al usuario en AsyncStorage
+        await AsyncStorage.setItem("usuario", JSON.stringify(user));
 
-        if (sessionRes.ok && sessionData.user) {
-          const user = sessionData.user;
-          const userRole = user.role;
+        Alert.alert("Inicio de sesión exitoso");
 
-          console.log("Rol del usuario:", userRole);
-
-          // Guardamos al usuario en AsyncStorage para acceder en otras pantallas
-          await AsyncStorage.setItem("usuario", JSON.stringify(user));
-
-          Alert.alert("Inicio de sesión exitoso");
-          navigation.dispatch(
-            CommonActions.reset({
-              index: 0,
-              routes: [{ name: "MainDrawer" }],
-            })
-          );
-        } else {
-          Alert.alert("Error", "No se pudo obtener la sesión del usuario");
-        }
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: "MainDrawer" }],
+          })
+        );
       } else {
         Alert.alert("Error", data.message || "Credenciales incorrectas");
       }
     } catch (error) {
+      console.error("🚫 Error de conexión:", error);
       Alert.alert("Error", "No se pudo conectar con el servidor");
     }
   };

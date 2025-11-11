@@ -15,14 +15,16 @@ export const sendEmail = (req: Request, res: Response): void => {
 
   const mailOptions = {
     from: "soportestorageplus5@gmail.com",
-    to: "soportestorageplus5@gmail.com", // lo recibe el admin
+    to: "soportestorageplus5@gmail.com",
     subject: "Nuevo mensaje de contacto",
     html: htmlContent,
   };
 
-  transporter.sendMail(mailOptions, (err, info) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ message: "Correo enviado", info });
+  transporter.sendMail(mailOptions, (err: Error | null, info: any) => {
+    if (err) {
+      console.error("Error al enviar correo:", err);
+      return res.status(500).json({ success: false, error: err.message });
+    }
+    res.json({ success: true, message: "Correo enviado correctamente", info });
   });
 };
-
